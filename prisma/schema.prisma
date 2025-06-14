@@ -11,8 +11,85 @@ datasource db {
 }
 
 model Project {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String             @id @default(uuid())
+  name             String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  papers           Paper[]
+  bigQuestions     BigQuestion[]
+  researchQuestions ResearchQuestion[]
+  answers          Answer[]
+  relationships    PaperRelationship[]
+}
+
+model Paper {
+  id              String            @id @default(uuid())
+  title           String
+  authors         String?
+  publicationYear Int?
+  link            String? // URL or local file path
+  notes           String?
+  projectId       String
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  answers         Answer[]
+  // Relationships where this paper is paperA
+  relationshipsAsPaperA PaperRelationship[] @relation("PaperARelationships")
+  // Relationships where this paper is paperB
+  relationshipsAsPaperB PaperRelationship[] @relation("PaperBRelationships")
+}
+
+model BigQuestion {
+  id               String             @id @default(uuid())
+  text             String
+  projectId        String
+  project          Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  researchQuestions ResearchQuestion[]
+}
+
+model ResearchQuestion {
+  id             String        @id @default(uuid())
+  text           String
+  bigQuestionId  String?
+  bigQuestion    BigQuestion?  @relation(fields: [bigQuestionId], references: [id], onDelete: SetNull)
+  parentId       String? // New field for hierarchical questions
+  parent         ResearchQuestion? @relation("ChildQuestions", fields: [parentId], references: [id], onDelete: SetNull)
+  children       ResearchQuestion[] @relation("ChildQuestions") // New field for child questions
+  projectId      String
+  project        Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  answers        Answer[]
+}
+
+model Answer {
+  id               String           @id @default(uuid())
+  text             String
+  location         String? // e.g., page number, section
+  paperId          String
+  paper            Paper            @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  researchQuestionId String
+  researchQuestion ResearchQuestion @relation(fields: [researchQuestionId], references: [id], onDelete: Cascade)
+  projectId        String
+  project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum RelationshipType {
+  SUPPORTS
+  CONTRADICTS
+  COMPLEMENTS
+  EXTENDS
+  IS_EXTENDED_BY
+  USES_METHODOLOGY_OF
+}
+
+model PaperRelationship {
+  id          String           @id @default(uuid())
+  paperAId    String
+  paperA      Paper            @relation("PaperARelationships", fields: [paperAId], references: [id], onDelete: Cascade)
+  paperBId    String
+  paperB      Paper            @relation("PaperBRelationships", fields: [paperBId], references: [id], onDelete: Cascade)
+  type        RelationshipType
+  notes       String?
+  projectId   String
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([paperAId, paperBId, type]) // Prevent duplicate relationships of the same type
 }
