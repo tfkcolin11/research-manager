@@ -14,7 +14,7 @@ interface ProjectState {
   error: string | null;
   fetchProjects: () => Promise<void>;
   createProject: (name: string) => Promise<void>;
-  selectProject: (id: string) => void;
+  selectProject: (id: string | null) => void;
   deleteProject: (id: string) => Promise<void>;
 }
 
@@ -64,7 +64,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     }
   },
 
-  selectProject: (id: string) => {
+  selectProject: (id: string | null) => {
     set({ selectedProjectId: id });
   },
 

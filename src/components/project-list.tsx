@@ -22,9 +22,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation"; // ✅ Updated import
 
 export function ProjectList() {
   const { projects, selectProject, deleteProject, isLoading, error } = useProjectStore();
+  const router = useRouter(); // ✅ Now from next/navigation
 
   const handleDelete = async (id: string, name: string) => {
     await deleteProject(id);
@@ -48,7 +50,11 @@ export function ProjectList() {
   }
 
   if (projects.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No projects found. Create one to get started!</div>;
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No projects found. Create one to get started!
+      </div>
+    );
   }
 
   return (
@@ -66,7 +72,16 @@ export function ProjectList() {
             <TableRow key={project.id}>
               <TableCell className="font-medium">{project.name}</TableCell>
               <TableCell className="text-right space-x-2">
-                <Button onClick={() => selectProject(project.id)} variant="outline">
+                {/* Safe navigation using modern useRouter */}
+                <Button
+                  onClick={
+                    () => {
+                      selectProject(project.id);
+                      router.push(`/dashboard/${project.id}`)
+                    }
+                  }
+                  variant="outline"
+                >
                   Select
                 </Button>
                 <AlertDialog>
@@ -82,7 +97,9 @@ export function ProjectList() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(project.id, project.name)}>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(project.id, project.name)}
+                      >
                         Continue
                       </AlertDialogAction>
                     </AlertDialogFooter>
