@@ -2,6 +2,7 @@
 
 import { usePaperStore } from "@/store/paperStore";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -86,8 +87,12 @@ export function PaperList({ projectId }: PaperListProps) {
               </TableCell>
               <TableCell className="max-w-[200px] truncate">{paper.notes || "-"}</TableCell>
               <TableCell className="text-right space-x-2">
-                <Button variant="outline" size="sm">View</Button>
-                <Button variant="outline" size="sm">Edit</Button>
+                <Link href={`/dashboard/${projectId}/papers/${paper.id}`} passHref>
+                  <Button variant="outline" size="sm">View</Button>
+                </Link>
+                <Link href={`/dashboard/${projectId}/papers/${paper.id}/edit`} passHref>
+                  <Button variant="outline" size="sm">Edit</Button>
+                </Link>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="sm">Delete</Button>
