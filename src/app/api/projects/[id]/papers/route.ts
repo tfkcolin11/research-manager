@@ -10,7 +10,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     const papers = await prisma.paper.findMany({
-      where: { id },
+      where: { projectId: id },
     });
 
     return NextResponse.json(papers);
