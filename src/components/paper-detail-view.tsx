@@ -4,6 +4,7 @@ import { usePaperStore } from "@/store/paperStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useEffect } from "react";
 
 interface PaperDetailViewProps {
   projectId: string;
@@ -14,9 +15,11 @@ export function PaperDetailView({ projectId, paperId }: PaperDetailViewProps) {
   const { selectedPaper, isLoading, error, getPaper } = usePaperStore();
 
   // Fetch paper details if not already selected or if ID doesn't match
-  if (!selectedPaper || selectedPaper.id !== paperId) {
-    getPaper(projectId, paperId);
-  }
+  useEffect(() => {
+    if (!selectedPaper || selectedPaper.id !== paperId) {
+      getPaper(projectId, paperId);
+    }
+  }, [projectId, paperId, selectedPaper, getPaper]);
 
   if (isLoading) {
     return <div className="text-center py-8">Loading paper details...</div>;
