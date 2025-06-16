@@ -251,7 +251,7 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Big Question</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete this big question? This will unlink all associated research questions but won't delete them. This action cannot be undone.
+                          Are you sure you want to delete this big question? This will unlink all associated research questions but won&apos;t delete them. This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

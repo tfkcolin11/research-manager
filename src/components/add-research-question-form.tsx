@@ -51,8 +51,8 @@ export function AddResearchQuestionForm({
 
     const data = {
       text,
-      bigQuestionId: selectedBigQuestionId || undefined,
-      parentId: selectedParentId || undefined,
+      bigQuestionId: selectedBigQuestionId === "none" ? undefined : selectedBigQuestionId,
+      parentId: selectedParentId === "none" ? undefined : selectedParentId,
     };
 
     await addResearchQuestion(projectId, data);
@@ -108,7 +108,7 @@ export function AddResearchQuestionForm({
                 <SelectValue placeholder="Select a big question (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {bigQuestions.map((bq) => (
                   <SelectItem key={bq.id} value={bq.id}>
                     {bq.text}
@@ -127,7 +127,7 @@ export function AddResearchQuestionForm({
                 <SelectValue placeholder="Select a parent question (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {researchQuestions.map((rq) => (
                   <SelectItem key={rq.id} value={rq.id}>
                     {rq.text}
