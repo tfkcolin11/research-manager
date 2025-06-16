@@ -75,4 +75,14 @@ This application is under active development. Features may change without notice
 Contributions are welcome! Please see CONTRIBUTING.md for guidelines (coming soon).
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). 
+
+This means you may:
+- Share — copy and redistribute the material in any medium or format
+- Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+- Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made
+- NonCommercial — You may not use the material for commercial purposes without explicit permission
+
+For full details, see: https://creativecommons.org/licenses/by-nc/4.0/
