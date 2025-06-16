@@ -26,6 +26,28 @@ This application is under active development. Features may change without notice
 - Citation management
 - Collaboration features
 
+### Future AI-Powered Features (Experimental)
+
+We're exploring AI/LLM integration to enhance research capabilities. These experimental features may be refined based on technical feasibility:
+
+#### 🔍 Research Analysis
+- **Intelligent Literature Synthesis**: Automatically generate literature reviews structured around research questions  
+- **Concept Relationship Mapping**: Identify connections between papers and visualize citation networks  
+- **Semantic Search Engine**: Natural language search across paper content using embeddings  
+
+#### ✍️ Writing Assistance
+- **Dissertation Outlining**: Generate dissertation structure based on research questions  
+- **Automated Citation Generation**: Suggest relevant citations for specific arguments  
+- **Literature Gap Identification**: Highlight under-explored research areas  
+
+#### 📊 Knowledge Extraction
+- **Research Q&A System**: Answer complex research questions across papers  
+- **Automated Summarization**: Generate paper abstracts and section summaries  
+- **Claim Validation**: Cross-reference claims to identify consensus  
+- **Methodology Comparison**: Analyze research methods across papers  
+
+*Note: These features are in exploratory phase. Implementation feasibility will be evaluated during development.*
+
 ## Technology Stack
 - **Frontend**: Next.js 14 (React)
 - **Backend**: Next.js API routes
