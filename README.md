@@ -25,6 +25,7 @@ This application is under active development. Features may change without notice
 - Search functionality
 - Citation management
 - Collaboration features
+- Zotero integration
 
 ### Future AI-Powered Features (Experimental)
 
