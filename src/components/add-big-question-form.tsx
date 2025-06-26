@@ -2,31 +2,21 @@
 
 import { useState } from "react";
 import { useQuestionStore } from "@/store/questionStore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { Button, Modal, Form, Input } from "antd";
+import { toast } from "@/components/ui/sonner";
 
 interface AddBigQuestionFormProps {
   projectId: string;
 }
 
 export function AddBigQuestionForm({ projectId }: AddBigQuestionFormProps) {
-  const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
 
   const { addBigQuestion, isLoading, error } = useQuestionStore();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (values: { text: string }) => {
+    const { text } = values;
     if (!text.trim()) {
       toast.error("Big question text is required.");
       return;
@@ -42,52 +32,40 @@ export function AddBigQuestionForm({ projectId }: AddBigQuestionFormProps) {
       toast.success("Big question added successfully!", {
         description: `Big question "${text}" has been added.`,
       });
-      setText("");
+      form.resetFields();
       setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Add Big Question</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Add Big Question</DialogTitle>
-          <DialogDescription>
-            Create a new overarching big question to categorize your research inquiries.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="text" className="text-right">
-              Question <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-              placeholder="Enter your big question..."
-            />
-          </div>
+    <>
+      <Button onClick={() => setOpen(true)}>Add Big Question</Button>
+      <Modal
+        title="Add Big Question"
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+      >
+        <p className="text-gray-500 mb-4">Create a new overarching big question to categorize your research inquiries.</p>
+        <Form form={form} onFinish={handleSubmit} layout="vertical">
+          <Form.Item
+            name="text"
+            label="Question"
+            rules={[{ required: true, message: "Big question text is required." }]}
+          >
+            <Input placeholder="Enter your big question..." />
+          </Form.Item>
+
           <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isLoading}
-            >
+            <Button onClick={() => setOpen(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Big Question"}
+            <Button type="primary" htmlType="submit" loading={isLoading}>
+              Add Big Question
             </Button>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </Form>
+      </Modal>
+    </>
   );
 }

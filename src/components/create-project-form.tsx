@@ -2,26 +2,16 @@
 
 import { useState } from "react";
 import { useProjectStore } from "@/store/projectStore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { Button, Modal, Form, Input } from "antd";
+import { toast } from "@/components/ui/sonner";
 
 export function CreateProjectForm() {
-  const [projectName, setProjectName] = useState("");
   const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
   const { createProject, isLoading, error } = useProjectStore();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (values: { projectName: string }) => {
+    const { projectName } = values;
     if (!projectName.trim()) {
       toast.error("Project name cannot be empty.");
       return;
@@ -37,41 +27,39 @@ export function CreateProjectForm() {
       toast.success("Project created successfully!", {
         description: `Project "${projectName}" has been added.`,
       });
-      setProjectName("");
+      form.resetFields();
       setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Create New Project</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>
-            Enter a name for your new research project.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Project Name
-            </Label>
-            <Input
-              id="name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
+    <>
+      <Button onClick={() => setOpen(true)}>Create New Project</Button>
+      <Modal
+        title="Create New Project"
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+      >
+        <p className="text-gray-500 mb-4">Enter a name for your new research project.</p>
+        <Form form={form} onFinish={handleSubmit} layout="vertical">
+          <Form.Item
+            name="projectName"
+            label="Project Name"
+            rules={[{ required: true, message: "Project name is required." }]}
+          >
+            <Input placeholder="Enter project name" />
+          </Form.Item>
+          <div className="flex justify-end">
+            <Button onClick={() => setOpen(false)} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit" loading={isLoading}>
+              Create Project
+            </Button>
           </div>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating..." : "Create Project"}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </Form>
+      </Modal>
+    </>
   );
 }

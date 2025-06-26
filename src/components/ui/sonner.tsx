@@ -1,31 +1,19 @@
 "use client"
 
-import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
+import { message, notification } from "antd";
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+// Re-export Ant Design's message and notification for consistent usage
+export const toast = {
+  success: (content: string, options?: any) => message.success(content, options?.duration),
+  error: (content: string, options?: any) => message.error(content, options?.duration),
+  info: (content: string, options?: any) => message.info(content, options?.duration),
+  warning: (content: string, options?: any) => message.warning(content, options?.duration),
+  loading: (content: string, options?: any) => message.loading(content, options?.duration),
+};
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
-
-  return (
-    <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      toastOptions={{
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-        },
-      }}
-      {...props}
-    />
-  )
-}
-
-export { Toaster }
+export const notify = {
+  success: (args: any) => notification.success(args),
+  error: (args: any) => notification.error(args),
+  info: (args: any) => notification.info(args),
+  warning: (args: any) => notification.warning(args),
+};

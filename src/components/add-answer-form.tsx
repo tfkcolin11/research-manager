@@ -3,26 +3,10 @@
 import { useState, useEffect } from "react";
 import { useQuestionStore } from "@/store/questionStore";
 import { usePaperStore } from "@/store/paperStore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { Button, Modal, Form, Input, Select } from "antd";
+import { toast } from "@/components/ui/sonner";
+
+const { TextArea } = Input;
 
 interface AddAnswerFormProps {
   projectId: string;
@@ -35,10 +19,8 @@ export function AddAnswerForm({
   researchQuestionId,
   triggerText = "Add Answer"
 }: AddAnswerFormProps) {
-  const [text, setText] = useState("");
-  const [location, setLocation] = useState("");
-  const [selectedPaperId, setSelectedPaperId] = useState("");
   const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
 
   const { addAnswer, isLoading: questionLoading, error: questionError } = useQuestionStore();
   const { papers, fetchPapers } = usePaperStore();
@@ -49,21 +31,9 @@ export function AddAnswerForm({
     }
   }, [open, papers.length, fetchPapers, projectId]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!text.trim()) {
-      toast.error("Answer text is required.");
-      return;
-    }
-    if (!selectedPaperId) {
-      toast.error("Please select a paper.");
-      return;
-    }
-
+  const handleSubmit = async (values: any) => {
     const data = {
-      text,
-      location: location || undefined,
-      paperId: selectedPaperId,
+      ...values,
       researchQuestionId,
     };
 
@@ -77,88 +47,61 @@ export function AddAnswerForm({
       toast.success("Answer added successfully!", {
         description: `Answer has been added to the research question.`,
       });
-      setText("");
-      setLocation("");
-      setSelectedPaperId("");
+      form.resetFields();
       setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">{triggerText}</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Add Answer</DialogTitle>
-          <DialogDescription>
-            Record an answer found in a specific paper for this research question.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="text" className="text-right pt-2">
-              Answer <span className="text-red-500">*</span>
-            </Label>
-            <Textarea
-              id="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="col-span-3"
-              disabled={questionLoading}
-              placeholder="Enter the answer found in the paper..."
-              rows={3}
-            />
-          </div>
-          
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="paper" className="text-right">
-              Paper <span className="text-red-500">*</span>
-            </Label>
-            <Select value={selectedPaperId} onValueChange={setSelectedPaperId}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select the source paper" />
-              </SelectTrigger>
-              <SelectContent>
-                {papers.map((paper) => (
-                  <SelectItem key={paper.id} value={paper.id}>
-                    {paper.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <>
+      <Button onClick={() => setOpen(true)}>{triggerText}</Button>
+      <Modal
+        title="Add Answer"
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+      >
+        <p className="text-gray-500 mb-4">Record an answer found in a specific paper for this research question.</p>
+        <Form form={form} onFinish={handleSubmit} layout="vertical">
+          <Form.Item
+            name="text"
+            label="Answer"
+            rules={[{ required: true, message: "Answer text is required." }]}
+          >
+            <TextArea rows={3} placeholder="Enter the answer found in the paper..." />
+          </Form.Item>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="location" className="text-right">
-              Location
-            </Label>
-            <Input
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="col-span-3"
-              disabled={questionLoading}
-              placeholder="e.g., Page 15, Section 3.2, etc."
-            />
-          </div>
+          <Form.Item
+            name="paperId"
+            label="Paper"
+            rules={[{ required: true, message: "Please select a paper." }]}
+          >
+            <Select placeholder="Select the source paper">
+              {papers.map((paper) => (
+                <Select.Option key={paper.id} value={paper.id}>
+                  {paper.title}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="location"
+            label="Location"
+          >
+            <Input placeholder="e.g., Page 15, Section 3.2, etc." />
+          </Form.Item>
 
           <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={questionLoading}
-            >
+            <Button onClick={() => setOpen(false)} disabled={questionLoading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={questionLoading}>
-              {questionLoading ? "Adding..." : "Add Answer"}
+            <Button type="primary" htmlType="submit" loading={questionLoading}>
+              Add Answer
             </Button>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </Form>
+      </Modal>
+    </>
   );
 }

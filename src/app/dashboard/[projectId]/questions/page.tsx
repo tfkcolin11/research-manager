@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, use } from "react";
 import { MainDashboardLayout } from "@/components/main-dashboard-layout";
 import { useQuestionStore } from "@/store/questionStore";
 import { AddBigQuestionForm } from "@/components/add-big-question-form";
 import { QuestionTreeView } from "@/components/question-tree-view";
 
 interface QuestionsPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
-  };
+  }>;
 }
 
-export default function QuestionsPage({ params }: QuestionsPageProps) {
+export default function QuestionsPage(props: QuestionsPageProps) {
+  const params = use(props.params);
   const { projectId } = params;
   const { fetchBigQuestions, fetchResearchQuestions, isLoading, error } = useQuestionStore();
 

@@ -1,22 +1,11 @@
 "use client";
 
 import { useRelationshipStore } from "@/store/relationshipStore";
-import { Button } from "@/components/ui/button";
+import { Button, Modal } from "antd";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Trash2, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 interface RelationshipListProps {
   projectId: string;
@@ -43,17 +32,26 @@ const relationshipTypeColors = {
 export function RelationshipList({ projectId }: RelationshipListProps) {
   const { relationships, deleteRelationship, isLoading, error } = useRelationshipStore();
 
-  const handleDelete = async (relationshipId: string, paperATitle: string, paperBTitle: string, type: string) => {
-    await deleteRelationship(projectId, relationshipId);
-    if (error) {
-      toast.error("Error deleting relationship", {
-        description: error,
-      });
-    } else {
-      toast.success("Relationship deleted successfully!", {
-        description: `Relationship between "${paperATitle}" and "${paperBTitle}" has been removed.`,
-      });
-    }
+  const showDeleteConfirm = (relationshipId: string, paperATitle: string, paperBTitle: string) => {
+    Modal.confirm({
+      title: "Delete Relationship",
+      content: `Are you sure you want to delete this relationship between "${paperATitle}" and "${paperBTitle}"? This action cannot be undone.`,
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        await deleteRelationship(projectId, relationshipId);
+        if (error) {
+          toast.error("Error deleting relationship", {
+            description: error,
+          });
+        } else {
+          toast.success("Relationship deleted successfully!", {
+            description: `Relationship between "${paperATitle}" and "${paperBTitle}" has been removed.`,
+          });
+        }
+      },
+    });
   };
 
   if (isLoading && relationships.length === 0) {
@@ -91,7 +89,6 @@ export function RelationshipList({ projectId }: RelationshipListProps) {
                   <ArrowRight className="h-4 w-4 text-gray-400" />
                   <Badge 
                     className={`${relationshipTypeColors[relationship.type]} border-0`}
-                    variant="secondary"
                   >
                     {relationshipTypeLabels[relationship.type]}
                   </Badge>
@@ -101,34 +98,11 @@ export function RelationshipList({ projectId }: RelationshipListProps) {
                   </span>
                 </div>
               </CardTitle>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Relationship</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this relationship between "{relationship.paperA.title}" and "{relationship.paperB.title}"? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={() => handleDelete(
-                        relationship.id, 
-                        relationship.paperA.title, 
-                        relationship.paperB.title,
-                        relationship.type
-                      )}
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button
+                danger
+                icon={<Trash2 className="h-4 w-4" />}
+                onClick={() => showDeleteConfirm(relationship.id, relationship.paperA.title, relationship.paperB.title)}
+              />
             </div>
           </CardHeader>
           

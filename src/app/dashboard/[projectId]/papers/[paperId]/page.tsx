@@ -1,16 +1,18 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { PaperDetailView } from "@/components/paper-detail-view";
 import { MainDashboardLayout } from "@/components/main-dashboard-layout";
 
 interface SinglePaperPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
     paperId: string;
-  };
+  }>;
 }
 
-export default function SinglePaperPage({ params }: SinglePaperPageProps) {
+export default function SinglePaperPage(props: SinglePaperPageProps) {
+  const params = use(props.params);
   const { projectId, paperId } = params;
 
   return (

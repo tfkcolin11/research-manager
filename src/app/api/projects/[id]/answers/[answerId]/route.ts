@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: Request, { params }: { params: { id: string, answerId: string } }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string, answerId: string }> }
+) {
+  const params = await props.params;
   try {
     const { id: projectId, answerId } = params;
 
@@ -35,7 +39,11 @@ export async function GET(request: Request, { params }: { params: { id: string, 
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string, answerId: string } }) {
+export async function PUT(
+  request: Request,
+  props: { params: Promise<{ id: string, answerId: string }> }
+) {
+  const params = await props.params;
   try {
     const { id: projectId, answerId } = params;
     const { text, location, paperId, researchQuestionId } = await request.json();
@@ -97,7 +105,11 @@ export async function PUT(request: Request, { params }: { params: { id: string, 
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string, answerId: string } }) {
+export async function DELETE(
+  request: Request,
+  props: { params: Promise<{ id: string, answerId: string }> }
+) {
+  const params = await props.params;
   try {
     const { id: projectId, answerId } = params;
 

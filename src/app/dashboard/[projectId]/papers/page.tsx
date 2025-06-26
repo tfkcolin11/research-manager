@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, use } from "react";
 import { AddPaperForm } from "@/components/add-paper-form";
 import { PaperList } from "@/components/paper-list";
 import { usePaperStore } from "@/store/paperStore";
 import { MainDashboardLayout } from "@/components/main-dashboard-layout";
 
 interface PapersPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
-  };
+  }>;
 }
 
-export default function PapersPage({ params }: PapersPageProps) {
+export default function PapersPage(props: PapersPageProps) {
+  const params = use(props.params);
   const { projectId } = params;
   const { fetchPapers, isLoading, error } = usePaperStore();
 

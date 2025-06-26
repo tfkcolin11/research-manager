@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useProjectStore } from "@/store/projectStore";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 interface DashboardSidebarProps {
   projectId: string;
@@ -21,16 +21,14 @@ export function DashboardSidebar({ projectId }: DashboardSidebarProps) {
   return (
     <nav className="flex flex-col space-y-1 p-4 border-r">
       {links.map((link) => (
-        <Link
+        <Button
           key={link.name}
-          href={link.href}
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "justify-start"
-          )}
+          asChild
+          variant="ghost"
+          className="justify-start"
         >
-          {link.name}
-        </Link>
+          <Link href={link.href}>{link.name}</Link>
+        </Button>
       ))}
     </nav>
   );

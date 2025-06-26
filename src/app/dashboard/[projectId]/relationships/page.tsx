@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, use } from "react";
 import { MainDashboardLayout } from "@/components/main-dashboard-layout";
 import { useRelationshipStore } from "@/store/relationshipStore";
 import { AddRelationshipForm } from "@/components/add-relationship-form";
 import { RelationshipList } from "@/components/relationship-list";
 
 interface RelationshipsPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
-  };
+  }>;
 }
 
-export default function RelationshipsPage({ params }: RelationshipsPageProps) {
+export default function RelationshipsPage(props: RelationshipsPageProps) {
+  const params = use(props.params);
   const { projectId } = params;
   const { fetchRelationships, isLoading, error } = useRelationshipStore();
 

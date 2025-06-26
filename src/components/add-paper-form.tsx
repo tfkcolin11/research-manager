@@ -2,47 +2,30 @@
 
 import { useState } from "react";
 import { usePaperStore } from "@/store/paperStore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { Button, Modal, Form, Input } from "antd";
+import { toast } from "@/components/ui/sonner";
+
+const { TextArea } = Input;
 
 interface AddPaperFormProps {
   projectId: string;
 }
 
 export function AddPaperForm({ projectId }: AddPaperFormProps) {
-  const [title, setTitle] = useState("");
-  const [authors, setAuthors] = useState("");
-  const [publicationYear, setPublicationYear] = useState<number | undefined>(undefined);
-  const [link, setLink] = useState("");
-  const [notes, setNotes] = useState("");
   const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
 
   const { addPaper, isLoading, error } = usePaperStore();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!title.trim()) {
+  const handleSubmit = async (values: any) => {
+    if (!values.title.trim()) {
       toast.error("Paper title is required.");
       return;
     }
 
     const paperData = {
-      title,
-      authors: authors || undefined,
-      publicationYear: publicationYear || undefined,
-      link: link || undefined,
-      notes: notes || undefined,
+      ...values,
+      publicationYear: values.publicationYear ? parseInt(values.publicationYear) : undefined,
     };
 
     await addPaper(projectId, paperData);
@@ -53,97 +36,65 @@ export function AddPaperForm({ projectId }: AddPaperFormProps) {
       });
     } else {
       toast.success("Paper added successfully!", {
-        description: `Paper "${title}" has been added.`,
+        description: `Paper "${values.title}" has been added.`,
       });
-      setTitle("");
-      setAuthors("");
-      setPublicationYear(undefined);
-      setLink("");
-      setNotes("");
+      form.resetFields();
       setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Add New Paper</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Add New Paper</DialogTitle>
-          <DialogDescription>
-            Enter the details for the new research paper.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">
-              Title <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-              required
-            />
+    <>
+      <Button onClick={() => setOpen(true)}>Add New Paper</Button>
+      <Modal
+        title="Add New Paper"
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+      >
+        <p className="text-gray-500 mb-4">Enter the details for the new research paper.</p>
+        <Form form={form} onFinish={handleSubmit} layout="vertical">
+          <Form.Item
+            name="title"
+            label="Title"
+            rules={[{ required: true, message: "Paper title is required." }]}
+          >
+            <Input placeholder="Enter paper title" />
+          </Form.Item>
+          <Form.Item
+            name="authors"
+            label="Authors"
+          >
+            <Input placeholder="e.g., John Doe, Jane Smith" />
+          </Form.Item>
+          <Form.Item
+            name="publicationYear"
+            label="Publication Year"
+          >
+            <Input type="number" placeholder="e.g., 2023" />
+          </Form.Item>
+          <Form.Item
+            name="link"
+            label="Link (URL/Path)"
+          >
+            <Input placeholder="e.g., https://example.com/paper.pdf" />
+          </Form.Item>
+          <Form.Item
+            name="notes"
+            label="Notes"
+          >
+            <TextArea rows={3} placeholder="Any additional notes about the paper" />
+          </Form.Item>
+          <div className="flex justify-end">
+            <Button onClick={() => setOpen(false)} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit" loading={isLoading}>
+              Add Paper
+            </Button>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="authors" className="text-right">
-              Authors
-            </Label>
-            <Input
-              id="authors"
-              value={authors}
-              onChange={(e) => setAuthors(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="publicationYear" className="text-right">
-              Pub. Year
-            </Label>
-            <Input
-              id="publicationYear"
-              type="number"
-              value={publicationYear === undefined ? "" : publicationYear}
-              onChange={(e) => setPublicationYear(e.target.value ? parseInt(e.target.value) : undefined)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="link" className="text-right">
-              Link (URL/Path)
-            </Label>
-            <Input
-              id="link"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="notes" className="text-right">
-              Notes
-            </Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
-          </div>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Adding..." : "Add Paper"}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </Form>
+      </Modal>
+    </>
   );
 }

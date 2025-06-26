@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: Request, { params }: { params: { id: string, paperId: string } }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string, paperId: string }> }
+) {
+  const params = await props.params;
   try {
     const { id: projectId, paperId } = params;
 
@@ -27,7 +31,11 @@ export async function GET(request: Request, { params }: { params: { id: string, 
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string, paperId: string } }) {
+export async function PUT(
+  request: Request,
+  props: { params: Promise<{ id: string, paperId: string }> }
+) {
+  const params = await props.params;
   try {
     const { id: projectId, paperId } = params;
     const { title, authors, publicationYear, link, notes } = await request.json();
@@ -60,7 +68,11 @@ export async function PUT(request: Request, { params }: { params: { id: string, 
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string, paperId: string } }) {
+export async function DELETE(
+  request: Request,
+  props: { params: Promise<{ id: string, paperId: string }> }
+) {
+  const params = await props.params;
   try {
     const { id, paperId } = params;
 

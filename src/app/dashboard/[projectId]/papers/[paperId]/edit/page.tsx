@@ -1,18 +1,20 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { useRouter } from "next/navigation";
 import { EditPaperForm } from "@/components/edit-paper-form";
 import { MainDashboardLayout } from "@/components/main-dashboard-layout";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 interface EditPaperPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
     paperId: string;
-  };
+  }>;
 }
 
-export default function EditPaperPage({ params }: EditPaperPageProps) {
+export default function EditPaperPage(props: EditPaperPageProps) {
+  const params = use(props.params);
   const { projectId, paperId } = params;
   const router = useRouter();
 

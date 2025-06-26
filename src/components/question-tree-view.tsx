@@ -2,24 +2,13 @@
 
 import { useState } from "react";
 import { useQuestionStore } from "@/store/questionStore";
-import { Button } from "@/components/ui/button";
+import { Button, Modal } from "antd";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { AddResearchQuestionForm } from "@/components/add-research-question-form";
 import { AddAnswerForm } from "@/components/add-answer-form";
 import { ChevronDown, ChevronRight, Trash2, Edit } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 interface QuestionTreeViewProps {
   projectId: string;
@@ -50,35 +39,62 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
     setExpandedResearchQuestions(newExpanded);
   };
 
-  const handleDeleteBigQuestion = async (id: string, text: string) => {
-    await deleteBigQuestion(projectId, id);
-    if (error) {
-      toast.error("Error deleting big question", { description: error });
-    } else {
-      toast.success("Big question deleted successfully!", {
-        description: `"${text}" has been removed.`,
-      });
-    }
+  const showDeleteAnswerConfirm = (id: string) => {
+    Modal.confirm({
+      title: "Delete Answer",
+      content: "Are you sure you want to delete this answer? This action cannot be undone.",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        await deleteAnswer(projectId, id);
+        if (error) {
+          toast.error("Error deleting answer", { description: error });
+        } else {
+          toast.success("Answer deleted successfully!");
+        }
+      },
+    });
   };
 
-  const handleDeleteResearchQuestion = async (id: string, text: string) => {
-    await deleteResearchQuestion(projectId, id);
-    if (error) {
-      toast.error("Error deleting research question", { description: error });
-    } else {
-      toast.success("Research question deleted successfully!", {
-        description: `"${text}" has been removed.`,
-      });
-    }
+  const showDeleteResearchQuestionConfirm = (id: string, text: string) => {
+    Modal.confirm({
+      title: "Delete Research Question",
+      content: "Are you sure you want to delete this research question? This will also delete all its answers and unlink any child questions. This action cannot be undone.",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        await deleteResearchQuestion(projectId, id);
+        if (error) {
+          toast.error("Error deleting research question", { description: error });
+        } else {
+          toast.success("Research question deleted successfully!", {
+            description: `"${text}" has been removed.`,
+          });
+        }
+      },
+    });
   };
 
-  const handleDeleteAnswer = async (id: string) => {
-    await deleteAnswer(projectId, id);
-    if (error) {
-      toast.error("Error deleting answer", { description: error });
-    } else {
-      toast.success("Answer deleted successfully!");
-    }
+  const showDeleteBigQuestionConfirm = (id: string, text: string) => {
+    Modal.confirm({
+      title: "Delete Big Question",
+      content: "Are you sure you want to delete this big question? This will unlink all associated research questions but won't delete them. This action cannot be undone.",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        await deleteBigQuestion(projectId, id);
+        if (error) {
+          toast.error("Error deleting big question", { description: error });
+        } else {
+          toast.success("Big question deleted successfully!", {
+            description: `"${text}" has been removed.`,
+          });
+        }
+      },
+    });
   };
 
   // Get orphaned research questions (not linked to any big question)
@@ -103,27 +119,11 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
             {answer.location && <span><strong>Location:</strong> {answer.location}</span>}
           </div>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Answer</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this answer? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleDeleteAnswer(answer.id)}>
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Button
+          danger
+          icon={<Trash2 className="h-4 w-4" />}
+          onClick={() => showDeleteAnswerConfirm(answer.id)}
+        />
       </div>
     </div>
   );
@@ -141,16 +141,12 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
               <div className="flex items-center space-x-2">
                 {(hasChildren || hasAnswers) && (
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    icon={isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     onClick={() => toggleResearchQuestion(question.id)}
-                    className="p-1"
-                  >
-                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </Button>
+                  />
                 )}
                 <CardTitle className="text-lg text-green-700">{question.text}</CardTitle>
-                <Badge variant="secondary">Research Question</Badge>
+                <Badge>Research Question</Badge>
               </div>
               <div className="flex items-center space-x-2">
                 <AddResearchQuestionForm 
@@ -162,27 +158,11 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
                   projectId={projectId} 
                   researchQuestionId={question.id}
                 />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Research Question</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this research question? This will also delete all its answers and unlink any child questions. This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDeleteResearchQuestion(question.id, question.text)}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  danger
+                  icon={<Trash2 className="h-4 w-4" />}
+                  onClick={() => showDeleteResearchQuestionConfirm(question.id, question.text)}
+                />
               </div>
             </div>
           </CardHeader>
@@ -224,16 +204,12 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
                 <div className="flex items-center space-x-2">
                   {hasQuestions && (
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      icon={isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       onClick={() => toggleBigQuestion(bigQuestion.id)}
-                      className="p-1"
-                    >
-                      {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                    </Button>
+                    />
                   )}
                   <CardTitle className="text-xl text-blue-700">{bigQuestion.text}</CardTitle>
-                  <Badge variant="default">Big Question</Badge>
+                  <Badge>Big Question</Badge>
                 </div>
                 <div className="flex items-center space-x-2">
                   <AddResearchQuestionForm 
@@ -241,27 +217,11 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
                     bigQuestionId={bigQuestion.id}
                     triggerText="Add Research Question"
                   />
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Big Question</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this big question? This will unlink all associated research questions but won&apos;t delete them. This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteBigQuestion(bigQuestion.id, bigQuestion.text)}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    danger
+                    icon={<Trash2 className="h-4 w-4" />}
+                    onClick={() => showDeleteBigQuestionConfirm(bigQuestion.id, bigQuestion.text)}
+                  />
                 </div>
               </div>
             </CardHeader>
@@ -292,3 +252,4 @@ export function QuestionTreeView({ projectId }: QuestionTreeViewProps) {
     </div>
   );
 }
+

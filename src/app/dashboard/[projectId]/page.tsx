@@ -1,14 +1,16 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { MainDashboardLayout } from "@/components/main-dashboard-layout";
 
 interface DashboardPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
-  };
+  }>;
 }
 
-export default function DashboardPage({ params }: DashboardPageProps) {
+export default function DashboardPage(props: DashboardPageProps) {
+  const params = use(props.params);
   const { projectId } = params;
 
   return (
